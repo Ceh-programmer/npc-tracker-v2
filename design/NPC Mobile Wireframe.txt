@@ -1,0 +1,17 @@
+NPC Tracker Mobile WireFrame(=<425px)
+
+--------------------------------
+| HEADER: "Journal of NPCs"    |
+--------------------------------
+| NAV:                         |
+|[Home] [Add NPC] [Companions] |
+--------------------------------
+| SEARCH BAR (full width)      |
+--------------------------------
+| NPC CARD                     |
+| NPC CARD                     |
+| NPC CARD                     |
+| NPC CARD                     |
+--------------------------------
+| FOOTER: © 2025 NPC Tracker   |
+--------------------------------

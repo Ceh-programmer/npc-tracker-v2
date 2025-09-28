@@ -1,0 +1,318 @@
+/*
+    style.css - this stylesheet is linked from index.html to apply styles to the products home page.
+    Add all of your custom styles here.
+*/
+* {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+html{
+    font-size: 16px;
+}
+
+body{
+    line-height: 1.5;
+    margin-left: 10%;
+    margin-right: 10%;
+    /* background-color: rgb(5, 92, 25); */
+    color: #1c1c1c;
+    background: linear-gradient(
+        to bottom,
+        #073980e0,
+        /* #1c1c1cb1, */
+        rgb(5, 92, 25)
+    );
+}
+
+.logo {
+    max-height: 60px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+header{
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #e9dcc9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+main{
+    background-color: white;
+}
+
+nav{
+    position: sticky;
+    top: 60px;
+    z-index: 999;
+    background-color: #e9dcc9;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0px;
+    /* border-radius: 8px; */
+}
+
+nav a{
+    color:rgb(5, 92, 25);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #d4af37;
+}
+
+footer{
+    position: sticky;
+    bottom: 0;
+    z-index: 1000;
+    background-color: rgb(5, 92, 25);
+    color: #f1f1f1;
+    text-align: center;
+    padding: 8px;
+}
+
+#search-bar{
+    background-color: #e9dcc9;
+}
+
+#app {
+    /* background-color: #e9dcc9;
+    color: #3e2f1c;
+    accent-color: #2e6b4c; */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 50px;
+    align-items: start;
+    grid-template-areas:
+        "header header header"
+        "nav nav nav"
+        "main main main"
+        "footer footer footer";
+}
+
+nav i,
+button i,
+header i {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+button {
+    background-color:rgba(79, 32, 123, 0.41);
+    color: #1f1f1f;
+    /* border-radius: 6px; */
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #d4af37;
+    color: #1c1c1c;
+}
+
+#npc-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    background-color: #e9dcc9;
+    border: 5px;
+    border-color: #1c1c1c;
+    /* border-radius: 8px; */
+    padding: 16px;
+}
+
+.npc-card {
+    margin:auto;
+    padding: 12px;
+    background-color: goldenrod;
+    /* border: 1px; */
+    border-color: #1c1c1c;
+    /* border-radius: 8px; */
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
+}
+
+.npc-card h2 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.npc-card img {
+    max-width: 150px;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    /* border-radius: 8px; */
+}
+
+html, body {
+    min-height: 100vh;
+}
+
+body.camp-mode {
+    /* line-height: 1.5;
+    margin-left: 10%;
+    margin-right: 10%; */
+    /* background-color: rgb(5, 92, 25); */
+    color: #1c1c1c;
+    background: linear-gradient(
+        to bottom,
+        #e1800aae,
+        /* #1c1c1cb1, */
+        #1c1c1c
+    );
+}
+
+
+.camp-mode {
+    background-color: #D35400;
+    color: #1c1c1c;
+    accent-color: #bdc3c7;
+  }
+
+  .camp-mode #npc-cards p {
+    color: #e1b12c;
+    font-style: italic;
+  }
+
+  .camp-mode header,
+  .camp-mode nav a {
+    color: #e1b12c;
+  }
+  
+  .camp-mode nav a:hover {
+    color: #D35400;
+  }
+
+  .camp-mode button {
+    background-color: #D35400;
+    color: #f5f2e7;
+  }
+
+  .camp-mode button:hover {
+    background-color: #e1b12c;
+    color: #2e2e2e;
+  }
+
+  .camp-mode footer,
+  .camp-mode main,
+  .camp-mode #search-bar {
+    background-color: #2e2e2e;
+    color: #f1f1f1;
+    border-radius: 8px;
+  }
+  
+  .camp-mode .npc-card {
+    background-color: #3b3b3b;
+    border: 1px solid #555;
+    color: #f5f2e7;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  }
+
+  .camp-mode i {
+    color: #1c1c1c
+  }
+
+  .camp-mode .npc-cards {
+    border-radius: 8px;
+  }
+
+
+/* 
+  .camp-mode #app {
+    background-color: #2e2e2e;
+    color: #f5f2e7;
+  } */
+
+  .hidden {
+    display: none;
+}
+
+header, nav, main, footer, .npc-card, button {
+    border-radius: 0;
+}
+
+.camp-mode header, .camp-mode nav, .camp-mode main, .camp-mode footer, .camp-mode .npc-card, .camp-mode button {
+    border-radius: 8px;
+}
+
+#message-box {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 1px solid #333;
+    /* border-radius: 5px; */
+    background-color: #f4f4f4;
+    color: #222;
+    font-weight: bold;
+    text-align: center;
+}
+
+header { grid-area: header; }
+nav { grid-area: nav; }
+main { grid-area: main; }
+footer {grid-area: footer; }
+
+@media screen and (min-width: 426px) and (max-width: 1023px) {
+    #app {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "header header"
+            "nav nav"
+            "main main"
+            "footer footer";
+        row-gap: 20px;
+        column-gap: 30px;
+    }
+
+    #npc-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media screen and (max-width: 425px) {
+    #app {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "nav"
+            "main"
+            "footer";
+        row-gap: 20px;
+        column-gap: 30px;
+    }
+    .logo {
+        max-height: 60px;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+    #npc-cards {
+        grid-template-columns: 1fr;
+    }
+    nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #search-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}

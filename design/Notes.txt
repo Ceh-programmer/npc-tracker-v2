@@ -1,0 +1,27 @@
+
+Submission Notes:
+
+Clicking on a character name displays their race and profession near the title for 3 seconds.
+
+Toggle button switches between Camp Mode (dark theme with rounded corners) and Travel Mode (light theme with sharp edges).
+
+Show All button displays all NPC cards, while Clear All button removes them.
+
+Search bar live filters NPCs based on name, profession, alignment, race, gender, location, association, or status. Not Notes.
+
+Responsive design with layouts for desktop, tablet, and mobile.
+
+Sticky header/footer/nav, displays info even during scroll.
+
+
+
+
+Future goals:
+
+Make links function.
+
+Create form so user can add a new npc.
+
+Accept images for portraits, maps, puzzles, etc.
+
+Add a "notes only" search function.

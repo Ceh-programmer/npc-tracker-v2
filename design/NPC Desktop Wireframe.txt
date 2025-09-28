@@ -1,0 +1,20 @@
+Desktop Wireframe (>=1024px)
+
+
+-------------------------------------
+| HEADER: "Journal of NPCs"		    |
+-------------------------------------
+| NAV: Home | Add NPC | Companions	|
+-------------------------------------
+| MAIN					            |
+|  +-----------------------------+	|
+|  | SEARCH BAR (text input)	 |	|
+|  +-----------------------------+	|
+|					                |
+|  NPC CARD  NPC CARD  NPC CARD		|
+|  NPC CARD  NPC CARD  NPC CARD		|
+|  NPC CARD  NPC CARD  NPC CARD		|
+|				                	|
+-------------------------------------
+| FOOTER: © 2025 NPC Tracker		|
+-------------------------------------

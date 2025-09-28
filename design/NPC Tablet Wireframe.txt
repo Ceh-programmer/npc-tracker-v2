@@ -1,0 +1,19 @@
+Tablet Wireframe (426px-1023px)
+
+-------------------------
+|HEADER:"JournalofNPCs" |
+-------------------------
+|NAV: Home|Add NPC|Comp	|
+-------------------------
+| MAIN		            |
+|  +------------------+	|
+|  |SEARCH BAR(txtin)|  |
+|  +-----------------+	|
+|					    |
+|  NPC CARD  NPC CARD	|
+|  NPC CARD  NPC CARD	|
+|  NPC CARD  NPC CARD	|
+|					    |
+-------------------------
+|FOOTER:2025NPC Tracker |
+-------------------------
