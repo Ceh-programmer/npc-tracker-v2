@@ -4,7 +4,7 @@ function renderNPCs(npcList) {
   container.innerHTML = "";
 
   if (npcList.length === 0) {
-    container.innerHTML = "<p>No NPCs to display. Try a new search or click 'Show All'.</p>";
+    container.innerHTML = "<p>No characters to display. Try a new search or click 'Show All'.</p>";
     return;
   }
 
@@ -12,7 +12,7 @@ function renderNPCs(npcList) {
     const card = document.createElement("article");
     card.classList.add("npc-card");
     card.innerHTML = `
-      <h2 class="npc-name" data-id="${npc.id}">${npc.name}</h2>
+      <h2 class="npc-name" data-id="${npc.id}">${npc.name} ${npc.companion ? '<span class="companion-badge">Companion</span>' : ''}</h2>
       <img src="${npc.image}" alt="Portrait of ${npc.name}" />
       <p><strong>Profession:</strong> ${npc.profession}</p>
       <p><strong>Alignment:</strong> ${npc.alignment}</p>
@@ -50,13 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const addNpcLink = document.getElementById("add-npc-link");
   const addNpcFormSection = document.getElementById("add-npc-form");
   const npcCardsSection = document.getElementById("npc-cards");
+  const companionsLink = document.getElementById("companions-link");
   const homeLink = document.getElementById("home-link");
 
-  // Restore camp mode from localStorage on page load
-  const isCampMode = localStorage.getItem("campMode") === "true";
-  if (isCampMode) {
+  // Restore theme from localStorage on page load (supports 'camp' and 'travel')
+  const savedTheme = localStorage.getItem("theme");
+  const legacyCamp = localStorage.getItem("campMode") === "true";
+  if (savedTheme === "camp" || (!savedTheme && legacyCamp)) {
     document.body.classList.add("camp-mode");
     campToggle.innerHTML = '<i class="fa-solid fa-shoe-prints"></i> Travel Mode';
+  } else if (savedTheme === "travel") {
+    document.body.classList.add("travel-mode");
+    campToggle.innerHTML = '<i class="fa-solid fa-fire"></i> Camp Mode';
   }
 
   // Reload the page when Home is clicked (preserves camp mode due to localStorage)
@@ -95,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
       association: document.getElementById("association").value,
       status: document.getElementById("status").value,
       notes: document.getElementById("notes").value,
+      companion: document.getElementById("is-companion").checked === true
     };
 
     // Add the new NPC to the list and re-render
@@ -106,6 +112,19 @@ document.addEventListener("DOMContentLoaded", () => {
     addNpcFormSection.classList.add("hidden");
     npcCardsSection.classList.remove("hidden");
   });
+
+  // Show companions only when the Companions nav link is clicked
+  if (companionsLink) {
+    companionsLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      // hide add form and show cards
+      addNpcFormSection.classList.add("hidden");
+      npcCardsSection.classList.remove("hidden");
+      // render only NPCs flagged as companions
+      const companions = npc.getNpcs().filter((n) => n.companion === true);
+      renderNPCs(companions);
+    });
+  }
 
   // Live filter: general search across multiple NPC fields
   searchInput.addEventListener("input", (event) => {
@@ -123,26 +142,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show all NPCs
   showAllButton.addEventListener("click", () => {
+    // ensure we're showing the NPC cards (hide the add form if visible)
     searchInput.value = "";
+    addNpcFormSection.classList.add("hidden");
+    npcCardsSection.classList.remove("hidden");
     renderNPCs(npc.getNpcs());
   });
 
   // Clear search results
   clearAllButton.addEventListener("click", () => {
+    // hide add form and show cards, then clear results
     searchInput.value = "";
+    addNpcFormSection.classList.add("hidden");
+    npcCardsSection.classList.remove("hidden");
     renderNPCs([]);
   });
 
-  // Toggle camp mode on/off and update stored preference
+  // Toggle between camp-mode and travel-mode (cycles) and persist the choice
   campToggle.addEventListener("click", () => {
-    document.body.classList.toggle("camp-mode");
-    const campIsActive = document.body.classList.contains("camp-mode");
-    localStorage.setItem("campMode", campIsActive);
-
-    if (campIsActive) {
+    if (document.body.classList.contains("camp-mode")) {
+      // switch to travel
+      document.body.classList.remove("camp-mode");
+      document.body.classList.add("travel-mode");
+      localStorage.setItem("theme", "travel");
+      localStorage.setItem("campMode", false);
+      campToggle.innerHTML = '<i class="fa-solid fa-fire"></i> Camp Mode';
+    } else if (document.body.classList.contains("travel-mode")) {
+      // switch to camp
+      document.body.classList.remove("travel-mode");
+      document.body.classList.add("camp-mode");
+      localStorage.setItem("theme", "camp");
+      localStorage.setItem("campMode", true);
       campToggle.innerHTML = '<i class="fa-solid fa-shoe-prints"></i> Travel Mode';
     } else {
-      campToggle.innerHTML = '<i class="fa-solid fa-fire"></i> Camp Mode';
+      // no theme active -> default to camp
+      document.body.classList.add("camp-mode");
+      localStorage.setItem("theme", "camp");
+      localStorage.setItem("campMode", true);
+      campToggle.innerHTML = '<i class="fa-solid fa-shoe-prints"></i> Travel Mode';
     }
   });
 });

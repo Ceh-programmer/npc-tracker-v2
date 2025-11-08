@@ -4,8 +4,10 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name ="viewport" content="width=device-width,initial-scale=1.0">
-        <title>NPC Creator/Tracker</title>
-        <link rel="stylesheet" href="css/style.css" />
+    <title>Character Creator/Tracker</title>
+    <!-- Fantasy font for the site title -->
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" />
         <!-- <script src="script/npc.js"></script>
         <script src="script/app.js"></script> -->
@@ -14,12 +16,12 @@
     <body>
         <div id="app">
             <header>
-                <h1><img src="img/logoJoNPC.png" alt="NPC Tracker Logo" class="logo"></i>Adventurer's Journal<div id="message-box" class="hidden"></div></h1>
+                <h1><img src="img/logoJoNPC.png" alt="Character Tracker Logo" class="logo"></i>Adventurer's Journal<div id="message-box" class="hidden"></div></h1>
             </header>
             <nav>
                 <a href="#" id="home-link"><i class="fa-solid fa-house"></i>Home</a>
-                <a href="#" id="add-npc-link"><i class="fa-solid fa-plus"></i>Add NPC</a>
-                <a href="#"><i class="fa-solid fa-people-group"></i>Companions</a>
+                <a href="#" id="add-npc-link"><i class="fa-solid fa-plus"></i>Add Character</a>
+                <a href="#" id="companions-link"><i class="fa-solid fa-people-group"></i>Companions</a>
                 <a href="#"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
                 <a href="#"><i class="fa-solid fa-book-open-reader"></i>Notes</a>
                 <!-- <div id="message-box" class="hidden"></div> -->
@@ -30,7 +32,7 @@
                     <input
                       type="text"
                       id="npc-search"
-                      placeholder="Search NPCs"
+                      placeholder="Search Characters"
                     />
                     <input 
                     type="text"
@@ -51,7 +53,7 @@
                     
                 </section>
                 <section id="add-npc-form" class="hidden">
-                    <h2>Add a New NPC</h2>
+                    <h2>Add a New Character</h2>
                     <form id="npc-form">
                         <input type="text" id="name" placeholder="Name" required />
                         <input type="text" id="profession" placeholder="Profession" />
@@ -62,13 +64,14 @@
                         <input type="text" id="association" placeholder="Association" />
                         <input type="text" id="status" placeholder="Status" />
                         <textarea id="notes" placeholder="Notes"></textarea>
-                        <input type="text" id="image" placeholder="Image path (e.g., img/new-npc.png)" />
-                        <button type="submit"><i class="fa-solid fa-plus"></i> Add NPC</button>
+                        <label class="checkbox-row"><input type="checkbox" id="is-companion" /> Companion</label>
+                        <input type="text" id="image" placeholder="Image path (e.g., img/new-character.png)" />
+                        <button type="submit"><i class="fa-solid fa-plus"></i> Add Character</button>
                     </form>
                 </section>
             </main>
             <footer>
-                <small>&copy; 2025 NPC Tracker</small>
+                <small>&copy; 2025 Character Tracker</small>
             </footer>
         </div>
         <script src="script/npc.js"></script>
