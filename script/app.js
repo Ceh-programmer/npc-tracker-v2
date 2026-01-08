@@ -11,7 +11,7 @@ function renderNPCs(npcList) {
     const card = document.createElement("article");
     card.classList.add("npc-card");
     card.innerHTML = `
-      <h2 class="npc-name" data-id="${npcData.id}">${npcData.name} ${npcData.companion ? '<span class="companion-badge">Companion</span>' : ''}</h2>
+      <h2 class="npc-name" data-id="${npcData.id}">${npcData.name} ${npcData.companion ? '<span class="companion-badge">Companion</span>' : ''} ${npcData.enemy ? '<span class="enemy-badge">Enemy</span>' : ''}</h2>
       <img src="${npcData.image}" alt="Portrait of ${npcData.name}" />
       <p><strong>Profession:</strong> ${npcData.profession}</p>
       <p><strong>Alignment:</strong> ${npcData.alignment}</p>
@@ -78,6 +78,7 @@ function renderNPCs(npcList) {
       document.getElementById('status').value = npcData.status || '';
       document.getElementById('notes').value = npcData.notes || '';
       document.getElementById('is-companion').checked = !!npcData.companion;
+      document.getElementById('is-enemy').checked = !!npcData.enemy;
 
       window.editingId = npcData.id;
 
@@ -179,10 +180,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // DOM references for elements we’ll interact with
   const searchInput = document.getElementById("npc-search");
   const locationSearchInput = document.getElementById("location-search");
+  const characterFilters = document.getElementById("character-filters");
+  const filterCompanionCheckbox = document.getElementById("filter-companion");
+  const filterEnemyCheckbox = document.getElementById("filter-enemy");
   const mapSearchInput = document.getElementById("map-search");
   const cartoucheSearchInput = document.getElementById("cartouche-search");
   const librarySearchInput = document.getElementById("library-search");
   const clearAllButton = document.getElementById("clear-all");
+  const showAllButton = document.getElementById("show-all");
+  const addCharacterBtn = document.getElementById("add-character-btn");
+  const addMapBtn = document.getElementById("add-map-btn");
   const campToggle = document.getElementById("toggle-camp");
   const npcForm = document.getElementById("npc-form");
   const mapForm = document.getElementById("map-form");
@@ -344,6 +351,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Show all search inputs for home page
     searchInput.classList.remove("hidden");
     locationSearchInput.classList.remove("hidden");
+    characterFilters.classList.remove("hidden");
+    addCharacterBtn.classList.add("hidden");
+    addMapBtn.classList.add("hidden");
     mapSearchInput.classList.remove("hidden");
     cartoucheSearchInput.classList.remove("hidden");
     librarySearchInput.classList.remove("hidden");
@@ -369,16 +379,18 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     searchInput.classList.remove("hidden");
     locationSearchInput.classList.remove("hidden");
+    characterFilters.classList.remove("hidden");
+    addCharacterBtn.classList.remove("hidden");
     mapSearchInput.classList.add("hidden");
     cartoucheSearchInput.classList.add("hidden");
     searchInput.value = "";
     locationSearchInput.value = "";
-    addNpcFormSection.classList.remove("hidden");
+    addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
     mapCardsSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
-    npcCardsSection.classList.add("hidden");
+    npcCardsSection.classList.remove("hidden");
     // Reset form to add mode
     npcForm.reset();
     imageFileInput.value = "";
@@ -387,6 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.querySelector('#npc-form button[type="submit"]');
     if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Character';
     window.editingId = null;
+    renderNPCs([]);
   });
 
   // Maps page: placeholder
@@ -394,12 +407,17 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     searchInput.classList.add("hidden");
     locationSearchInput.classList.add("hidden");
+    characterFilters.classList.add("hidden");
+    addCharacterBtn.classList.add("hidden");
+    addMapBtn.classList.remove("hidden");
     mapSearchInput.classList.remove("hidden");
     cartoucheSearchInput.classList.remove("hidden");
+    mapSearchInput.value = "";
+    cartoucheSearchInput.value = "";
     addNpcFormSection.classList.add("hidden");
     npcCardsSection.classList.add("hidden");
-    addMapFormSection.classList.remove("hidden");
-    mapCardsSection.classList.add("hidden");
+    addMapFormSection.classList.add("hidden");
+    mapCardsSection.classList.remove("hidden");
     mapForm.reset();
     mapImageFileInput.value = "";
     mapImagePreviewContainer.classList.add("hidden");
@@ -408,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Map';
     window.editingMapId = null;
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    renderMaps([]);
   });
 
   // Notebook page: placeholder
@@ -465,7 +484,8 @@ document.addEventListener("DOMContentLoaded", () => {
       association: document.getElementById("association").value,
       status: document.getElementById("status").value,
       notes: document.getElementById("notes").value,
-      companion: document.getElementById("is-companion").checked === true
+      companion: document.getElementById("is-companion").checked === true,
+      enemy: document.getElementById("is-enemy").checked === true
     };
 
     // if we are editing an existing entry, update it
@@ -512,9 +532,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formValues = {
       name: document.getElementById("map-name").value,
-      image: document.getElementById("map-image").value || "img/default.png",
+      location: document.getElementById("map-location").value,
       cartouches: document.getElementById("cartouches").value,
-      notes: document.getElementById("map-notes").value
+      image: document.getElementById("map-image").value || "img/default.png"
     };
 
     // if we are editing an existing entry, update it
@@ -560,6 +580,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyCharacterFilters() {
     const characterSearchTerm = searchInput.value.toLowerCase().trim();
     const locationSearchTerm = locationSearchInput.value.toLowerCase().trim();
+    const filterCompanion = filterCompanionCheckbox.checked;
+    const filterEnemy = filterEnemyCheckbox.checked;
     
     let results = npc.getNpcs();
     
@@ -568,11 +590,21 @@ document.addEventListener("DOMContentLoaded", () => {
       results = results.filter(character => npc.searchNpcs(characterSearchTerm).includes(character));
     }
     
-    // Apply location filter if filled
+    // Apply notes filter if filled
     if (locationSearchTerm !== "") {
       results = results.filter(character =>
-        character.location.toLowerCase().includes(locationSearchTerm)
+        character.notes.toLowerCase().includes(locationSearchTerm)
       );
+    }
+    
+    // Apply companion filter if checked
+    if (filterCompanion) {
+      results = results.filter(character => character.companion === true);
+    }
+    
+    // Apply enemy filter if checked
+    if (filterEnemy) {
+      results = results.filter(character => character.enemy === true);
     }
     
     addNpcFormSection.classList.add("hidden");
@@ -614,6 +646,16 @@ document.addEventListener("DOMContentLoaded", () => {
     applyCharacterFilters();
   });
 
+  // Companion filter with checkboxes
+  filterCompanionCheckbox.addEventListener("change", () => {
+    applyCharacterFilters();
+  });
+
+  // Enemy filter with checkboxes
+  filterEnemyCheckbox.addEventListener("change", () => {
+    applyCharacterFilters();
+  });
+
   // Map search with filters
   mapSearchInput.addEventListener("input", () => {
     applyMapFilters();
@@ -624,7 +666,24 @@ document.addEventListener("DOMContentLoaded", () => {
     applyMapFilters();
   });
 
-  // Library search - searches across all databases
+  // Clear search results
+  clearAllButton.addEventListener("click", () => {
+    // hide add form and show cards, then clear results
+    searchInput.value = "";
+    locationSearchInput.value = "";
+    mapSearchInput.value = "";
+    cartoucheSearchInput.value = "";
+    librarySearchInput.value = "";
+    addNpcFormSection.classList.add("hidden");
+    addMapFormSection.classList.add("hidden");
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+    if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    npcCardsSection.classList.remove("hidden");
+    mapCardsSection.classList.add("hidden");
+    renderNPCs([]);
+  });
+
+  // Library search - searches across all databases (only on home page)
   librarySearchInput.addEventListener("input", (event) => {
     const searchTerm = event.target.value;
     let npcResults = [];
@@ -650,21 +709,40 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMaps(mapResults);
   });
 
-  // Clear search results
-  clearAllButton.addEventListener("click", () => {
-    // hide add form and show cards, then clear results
-    searchInput.value = "";
-    locationSearchInput.value = "";
-    mapSearchInput.value = "";
-    cartoucheSearchInput.value = "";
-    librarySearchInput.value = "";
+  // Show all characters
+  showAllButton.addEventListener("click", () => {
     addNpcFormSection.classList.add("hidden");
-    addMapFormSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
-    if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
+    renderNPCs(npc.getNpcs());
+  });
+
+  // Add character button - show the add character form
+  addCharacterBtn.addEventListener("click", () => {
+    addNpcFormSection.classList.remove("hidden");
+    npcCardsSection.classList.add("hidden");
+    npcForm.reset();
+    imageFileInput.value = "";
+    imagePreviewContainer.classList.add("hidden");
+    dragDropZone.classList.remove("hidden");
+    const submitBtn = document.querySelector('#npc-form button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Character';
+    window.editingId = null;
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+  });
+
+  // Add map button - show the add map form
+  addMapBtn.addEventListener("click", () => {
+    addMapFormSection.classList.remove("hidden");
     mapCardsSection.classList.add("hidden");
-    renderNPCs([]);
+    mapForm.reset();
+    mapImageFileInput.value = "";
+    mapImagePreviewContainer.classList.add("hidden");
+    mapDragDropZone.classList.remove("hidden");
+    const submitBtn = document.querySelector('#map-form button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Map';
+    window.editingMapId = null;
+    if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
   });
 
   // Toggle between camp-mode and travel-mode (cycles) and persist the choice
