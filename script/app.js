@@ -1,4 +1,3 @@
-// Renders a list of NPCs into the #npc-cards section
 function renderNPCs(npcList) {
   const container = document.getElementById("npc-cards");
   container.innerHTML = "";
@@ -8,33 +7,90 @@ function renderNPCs(npcList) {
     return;
   }
 
-  npcList.forEach((npc) => {
+  npcList.forEach((npcData) => {
     const card = document.createElement("article");
     card.classList.add("npc-card");
     card.innerHTML = `
-      <h2 class="npc-name" data-id="${npc.id}">${npc.name} ${npc.companion ? '<span class="companion-badge">Companion</span>' : ''}</h2>
-      <img src="${npc.image}" alt="Portrait of ${npc.name}" />
-      <p><strong>Profession:</strong> ${npc.profession}</p>
-      <p><strong>Alignment:</strong> ${npc.alignment}</p>
-      <p><strong>Race:</strong> ${npc.race}</p>
-      <p><strong>Gender:</strong> ${npc.gender}</p>
-      <p><strong>Location:</strong> ${npc.location}</p>
-      <p><strong>Association:</strong> ${npc.association}</p>
-      <p><strong>Status:</strong> ${npc.status}</p>
-      <p><strong>Notes:</strong> ${npc.notes}</p>
+      <h2 class="npc-name" data-id="${npcData.id}">${npcData.name} ${npcData.companion ? '<span class="companion-badge">Companion</span>' : ''}</h2>
+      <img src="${npcData.image}" alt="Portrait of ${npcData.name}" />
+      <p><strong>Profession:</strong> ${npcData.profession}</p>
+      <p><strong>Alignment:</strong> ${npcData.alignment}</p>
+      <p><strong>Race:</strong> ${npcData.race}</p>
+      <p><strong>Gender:</strong> ${npcData.gender}</p>
+      <p><strong>Location:</strong> ${npcData.location}</p>
+      <p><strong>Association:</strong> ${npcData.association}</p>
+      <p><strong>Status:</strong> ${npcData.status}</p>
+      <p><strong>Notes:</strong> ${npcData.notes}</p>
     `;
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete-btn';
+    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete';
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+
     container.appendChild(card);
 
-    // Adds click interaction to show name + profession in a temporary message
+    // Name click
     const npcName = card.querySelector(".npc-name");
     npcName.addEventListener("click", () => {
       const msgBox = document.getElementById("message-box");
-      msgBox.textContent = `${npc.name}: ${npc.race} ${npc.profession}`;
+      msgBox.textContent = `${npcData.name}: ${npcData.race} ${npcData.profession}`;
       msgBox.classList.remove("hidden");
 
       setTimeout(() => {
         msgBox.classList.add("hidden");
       }, 3000);
+    });
+
+    // ✅ Delete handler using the GLOBAL npc manager
+    delBtn.addEventListener('click', () => {
+      const confirmed = window.confirm(`Delete character "${npcData.name}"? This cannot be undone.`);
+      if (confirmed) {
+        const removed = npc.removeNpc(npcData.id);
+        if (removed) {
+          renderNPCs(npc.getNpcs());
+        } else {
+          console.warn("Could not find NPC to remove with id:", npcData.id);
+        }
+      }
+    });
+
+    // Edit handler – same idea, just switch to npcData
+    editBtn.addEventListener('click', () => {
+      document.getElementById('name').value = npcData.name || '';
+      document.getElementById('image').value = (npcData.image && npcData.image !== 'img/default.png') ? npcData.image : '';
+      document.getElementById('profession').value = npcData.profession || '';
+      document.getElementById('alignment').value = npcData.alignment || '';
+      document.getElementById('race').value = npcData.race || '';
+      document.getElementById('gender').value = npcData.gender || '';
+      document.getElementById('location').value = npcData.location || '';
+      document.getElementById('association').value = npcData.association || '';
+      document.getElementById('status').value = npcData.status || '';
+      document.getElementById('notes').value = npcData.notes || '';
+      document.getElementById('is-companion').checked = !!npcData.companion;
+
+      window.editingId = npcData.id;
+
+      const submitBtn = document.querySelector('#npc-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-save"></i> Save Changes';
+
+      const addForm = document.getElementById('add-npc-form');
+      const cards = document.getElementById('npc-cards');
+      if (addForm) addForm.classList.remove('hidden');
+      if (cards) cards.classList.add('hidden');
+      // show the cancel X when editing so the user can abort changes
+      const cancelBtn = document.getElementById('cancel-edit');
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
     });
   });
 }
@@ -50,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const addNpcLink = document.getElementById("add-npc-link");
   const addNpcFormSection = document.getElementById("add-npc-form");
   const npcCardsSection = document.getElementById("npc-cards");
+  const cancelEditBtn = document.getElementById("cancel-edit");
   const companionsLink = document.getElementById("companions-link");
   const homeLink = document.getElementById("home-link");
 
@@ -76,6 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const formIsHidden = addNpcFormSection.classList.contains("hidden");
 
     if (formIsHidden) {
+      // when opening the form for adding, ensure cancel is hidden (only used for edit)
+      if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
       addNpcFormSection.classList.remove("hidden");
       npcCardsSection.classList.add("hidden");
     } else {
@@ -84,12 +143,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // cancel / abort edit button handler
+  if (cancelEditBtn) {
+    cancelEditBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.editingId = null;
+      npcForm.reset();
+      addNpcFormSection.classList.add('hidden');
+      npcCardsSection.classList.remove('hidden');
+      const submitBtn = document.querySelector('#npc-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Character';
+      cancelEditBtn.classList.add('hidden');
+    });
+  }
+
   // Handle submission of new NPC from form
   npcForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const newNpc = {
-      id: npc.getNpcs().length + 1,
+    const formValues = {
       name: document.getElementById("name").value,
       image: document.getElementById("image").value || "img/default.png",
       profession: document.getElementById("profession").value,
@@ -103,13 +175,35 @@ document.addEventListener("DOMContentLoaded", () => {
       companion: document.getElementById("is-companion").checked === true
     };
 
-    // Add the new NPC to the list and re-render
+    // if we are editing an existing entry, update it
+    if (window.editingId) {
+      const updatedNpc = { id: window.editingId, ...formValues };
+      const ok = npc.updateNpc(updatedNpc);
+      if (ok) {
+        renderNPCs(npc.getNpcs());
+      }
+      // reset editing state
+      window.editingId = null;
+      const submitBtn = document.querySelector('#npc-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Character';
+      npcForm.reset();
+      addNpcFormSection.classList.add("hidden");
+      if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+      npcCardsSection.classList.remove("hidden");
+      return;
+    }
+
+    // otherwise create a new id (avoid collisions) and add
+    const current = npc.getNpcs();
+    const nextId = current.reduce((max, it) => Math.max(max, it.id || 0), 0) + 1;
+    const newNpc = { id: nextId, ...formValues };
     npc.addNpc(newNpc);
     renderNPCs(npc.getNpcs());
     npcForm.reset();
 
     // Hide the form and show NPC cards after submission
     addNpcFormSection.classList.add("hidden");
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
   });
 
@@ -119,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       // hide add form and show cards
       addNpcFormSection.classList.add("hidden");
+      if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
       npcCardsSection.classList.remove("hidden");
       // render only NPCs flagged as companions
       const companions = npc.getNpcs().filter((n) => n.companion === true);
@@ -145,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ensure we're showing the NPC cards (hide the add form if visible)
     searchInput.value = "";
     addNpcFormSection.classList.add("hidden");
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
     renderNPCs(npc.getNpcs());
   });
@@ -154,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // hide add form and show cards, then clear results
     searchInput.value = "";
     addNpcFormSection.classList.add("hidden");
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
     renderNPCs([]);
   });

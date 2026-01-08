@@ -23,7 +23,7 @@
                 <a href="#" id="add-npc-link"><i class="fa-solid fa-plus"></i>Add Character</a>
                 <a href="#" id="companions-link"><i class="fa-solid fa-people-group"></i>Companions</a>
                 <a href="#"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
-                <a href="#"><i class="fa-solid fa-book-open-reader"></i>Notes</a>
+                <a href="#"><i class="fa-solid fa-book-open-reader"></i>Notebook</a>
                 <!-- <div id="message-box" class="hidden"></div> -->
             </nav>
             <main>
@@ -65,8 +65,11 @@
                         <input type="text" id="status" placeholder="Status" />
                         <textarea id="notes" placeholder="Notes"></textarea>
                         <label class="checkbox-row"><input type="checkbox" id="is-companion" /> Companion</label>
-                        <input type="text" id="image" placeholder="Image path (e.g., img/new-character.png)" />
-                        <button type="submit"><i class="fa-solid fa-plus"></i> Add Character</button>
+                                                <input type="text" id="image" placeholder="Image path (e.g., img/new-character.png)" />
+                                                <div class="form-actions">
+                                                    <button type="submit" id="submit-btn" class="save-btn"><i class="fa-solid fa-plus"></i> Add Character</button>
+                                                    <button type="button" id="cancel-edit" class="cancel-btn hidden">Cancel Changes</button>
+                                                </div>
                     </form>
                 </section>
             </main>

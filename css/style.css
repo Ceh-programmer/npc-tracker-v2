@@ -206,6 +206,7 @@ button:hover {
 
 /* Add Character form: bigger inputs and stacked layout */
 #add-npc-form {
+    position: relative;
     max-width: 760px;
     margin: 24px auto;
     padding: 20px;
@@ -222,6 +223,36 @@ button:hover {
     color: #2e2e2e;
     letter-spacing: 0.02em;
 }
+
+/* Form action buttons (Save / Cancel) placed side-by-side */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 6px;
+}
+.save-btn {
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+    min-width: 220px;
+    height: 46px;
+    padding: 8px 18px;
+    font-size: 1.05rem;
+    border-radius: 8px;
+}
+.save-btn:hover { background-color: #2ecc71; color: #fff; }
+.cancel-btn {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    min-width: 160px;
+    height: 46px;
+    padding: 8px 18px;
+    font-size: 1.05rem;
+    border-radius: 8px;
+}
+.cancel-btn:hover { background-color: #c0392b; color: #fff; }
 
 #add-npc-form form {
     display: flex;
@@ -294,6 +325,41 @@ button:hover {
     display: block;
     margin: 0 auto;
     /* border-radius: 8px; */
+}
+
+/* Action buttons under each card image: equal width Edit / Delete */
+.npc-card .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 0 6px;
+}
+.npc-card .card-actions button {
+    flex: 1 1 0;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+}
+.npc-card .card-actions .delete-btn {
+    background-color: #c0392b;
+    color: #fff;
+}
+.npc-card .card-actions .delete-btn:hover {
+    background-color: #ff6b61;
+    color: #111;
+}
+.npc-card .card-actions .edit-btn {
+    background-color: #2e86ab;
+    color: #fff;
+}
+.npc-card .card-actions .edit-btn:hover {
+    background-color: #63b8d1;
+    color: #111;
 }
 
 html, body {

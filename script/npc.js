@@ -1,5 +1,8 @@
 let npc = {
-    allNpcs: [
+  // Key used for storing characters in localStorage
+  STORAGE_KEY: 'characters',
+
+  allNpcs: [
     {
       id: 1,
       name: "Gyark Sniggy",
@@ -11,7 +14,8 @@ let npc = {
       location: "Underdark",
       association: "Zhentarim",
       status: "Alive",
-      notes: "Unpredictable, not to be trusted"
+      notes: "Unpredictable, not to be trusted",
+      companion: false
     },
     {
         id: 2,
@@ -24,7 +28,8 @@ let npc = {
         location: "Baldur's Gate",
         association: "Bartender Watch",
         status: "Alive",
-        notes: "Retired sellsword"
+        notes: "Retired sellsword",
+        companion: false
       },
       {
         id: 3,
@@ -37,7 +42,8 @@ let npc = {
         location: "High Moor",
         association: "None",
         status: "Unknown",
-        notes: "Mediocre healing abilities"
+        notes: "Mediocre healing abilities",
+        companion: false
       },
       {
         id: 4,
@@ -50,7 +56,8 @@ let npc = {
         location: "Mithral Hall",
         association: "Hammer Guild",
         status: "Imprisoned",
-        notes: "Mention Taured from the Crossing for a discount"
+        notes: "Mention Taured from the Crossing for a discount",
+        companion: false
       },
       {
         id: 5,
@@ -63,7 +70,8 @@ let npc = {
         location: "High Moor",
         association: "Szass Tam",
         status: "Undead",
-        notes: "Very dangerous enemy"
+        notes: "Very dangerous enemy",
+        companion: false
       },
       {
         id: 6,
@@ -76,7 +84,8 @@ let npc = {
         location: "Neverwinter",
         association: "None",
         status: "Dead",
-        notes: ""
+        notes: "",
+        companion: false
       },
 ],
 
@@ -122,6 +131,56 @@ searchNotes(searchTerm) {
 },
 addNpc(npcObj) {
   this.allNpcs.push(npcObj);
+  this.saveAll();
+}
+,
+
+// Persist current list to localStorage
+saveAll() {
+  try {
+    const toSave = this.allNpcs.map(item => ({ companion: false, ...item }));
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) {
+    console.error('Failed to save characters to localStorage', e);
+  }
+},
+
+// Remove NPC by id and persist
+removeNpc(id) {
+  const idx = this.allNpcs.findIndex(n => n.id === id);
+  if (idx !== -1) {
+    this.allNpcs.splice(idx, 1);
+    this.saveAll();
+    return true;
+  }
+  return false;
+},
+
+// Update an existing NPC (matched by id) and persist
+updateNpc(updated) {
+  const idx = this.allNpcs.findIndex(n => n.id === updated.id);
+  if (idx !== -1) {
+    this.allNpcs[idx] = { ...this.allNpcs[idx], ...updated };
+    this.saveAll();
+    return true;
+  }
+  return false;
 }
 };
+
+// Try to load saved characters from localStorage on script load
+try {
+  if (typeof localStorage !== 'undefined') {
+    const raw = localStorage.getItem(npc.STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // normalize entries to ensure companion property exists
+        npc.allNpcs = parsed.map(p => ({ companion: false, ...p }));
+      }
+    }
+  }
+} catch (e) {
+  console.error('Failed to load characters from localStorage', e);
+}
 
