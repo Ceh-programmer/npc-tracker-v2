@@ -184,3 +184,108 @@ try {
   console.error('Failed to load characters from localStorage', e);
 }
 
+// Maps manager
+let maps = {
+  // Key used for storing maps in localStorage
+  STORAGE_KEY: 'maps',
+
+  allMaps: [
+    {
+      id: 1,
+      name: "Waterdeep City Map",
+      image: "img/waterdeep-map.png",
+      cartouches: "City districts, notable locations",
+      notes: "Main hub for trade routes"
+    },
+    {
+      id: 2,
+      name: "The Underdark",
+      image: "img/underdark-map.png",
+      cartouches: "Drow settlements, cave systems",
+      notes: "Dangerous territory, watch for encounters"
+    },
+    {
+      id: 3,
+      name: "Sword Coast Map",
+      image: "img/sword-coast-map.png",
+      cartouches: "Cities, towns, landmarks",
+      notes: "Primary travel route between cities"
+    }
+  ],
+
+  getMaps() {
+    return this.allMaps;
+  },
+
+  searchMaps(searchTerm) {
+    const term = searchTerm.toLowerCase().trim();
+    if (term === "") {
+      return [];
+    }
+    return this.allMaps.filter(map =>
+      map.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+
+  searchCartouches(searchTerm) {
+    const term = searchTerm.toLowerCase().trim();
+    if (term === "") {
+      return [];
+    }
+    return this.allMaps.filter(map =>
+      map.cartouches.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+
+  addMap(mapObj) {
+    this.allMaps.push(mapObj);
+    this.saveAll();
+  },
+
+  // Persist current list to localStorage
+  saveAll() {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.allMaps));
+    } catch (e) {
+      console.error('Failed to save maps to localStorage', e);
+    }
+  },
+
+  // Remove map by id and persist
+  removeMap(id) {
+    const idx = this.allMaps.findIndex(m => m.id === id);
+    if (idx !== -1) {
+      this.allMaps.splice(idx, 1);
+      this.saveAll();
+      return true;
+    }
+    return false;
+  },
+
+  // Update an existing map (matched by id) and persist
+  updateMap(updated) {
+    const idx = this.allMaps.findIndex(m => m.id === updated.id);
+    if (idx !== -1) {
+      this.allMaps[idx] = { ...this.allMaps[idx], ...updated };
+      this.saveAll();
+      return true;
+    }
+    return false;
+  }
+};
+
+// Try to load saved maps from localStorage on script load
+try {
+  if (typeof localStorage !== 'undefined') {
+    const raw = localStorage.getItem(maps.STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        maps.allMaps = parsed;
+      }
+    }
+  }
+} catch (e) {
+  console.error('Failed to load maps from localStorage', e);
+}
+

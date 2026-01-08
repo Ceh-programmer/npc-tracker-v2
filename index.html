@@ -20,36 +20,49 @@
             </header>
             <nav>
                 <a href="#" id="home-link"><i class="fa-solid fa-house"></i>Home</a>
-                <a href="#" id="add-npc-link"><i class="fa-solid fa-plus"></i>Add Character</a>
-                <a href="#" id="companions-link"><i class="fa-solid fa-people-group"></i>Companions</a>
-                <a href="#"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
-                <a href="#"><i class="fa-solid fa-book-open-reader"></i>Notebook</a>
-                <!-- <div id="message-box" class="hidden"></div> -->
+                <a href="#" id="characters-link"><i class="fa-solid fa-people-group"></i>Characters</a>
+                <a href="#" id="maps-link"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
+                <a href="#" id="notebook-link"><i class="fa-solid fa-book-open-reader"></i>Notebook</a>
             </nav>
             <main>
                 <section id="search-bar">
-                    <button id="toggle-camp"><i class="fa-solid fa-fire"></i>Camp Mode</button>
+                    <button id="toggle-camp"><i class="fa-solid fa-fire"></i>Camp</button>
                     <input
                       type="text"
                       id="npc-search"
                       placeholder="Search Characters"
+                      class="search-input"
                     />
                     <input 
                     type="text"
-                    id="text-search"
-                    placeholder="Search Notes"
+                    id="location-search"
+                    placeholder="Search Locations"
+                    class="search-input"
                     />
-                    <button id="show-all"><i class="fa-solid fa-eye"></i>Show All</button>
-                    <button id="clear-all"><i class="fa-solid fa-eye-slash"></i>Clear All</button>
-                  </section>
-                  <!-- <section id="search-text-bar">
                     <input
-                    type="text"
-                    id="text-search"
-                    placeholder="Search Notes"
+                      type="text"
+                      id="map-search"
+                      placeholder="Search Maps"
+                      class="search-input hidden"
                     />
-                  </section> -->
+                    <input
+                      type="text"
+                      id="cartouche-search"
+                      placeholder="Search Cartouches"
+                      class="search-input hidden"
+                    />
+                    <input
+                      type="text"
+                      id="library-search"
+                      placeholder="Search Library"
+                      class="search-input hidden"
+                    />
+                    <button id="clear-all"><i class="fa-solid fa-eye-slash"></i>Clear</button>
+                  </section>
                 <section id ="npc-cards">
+                    
+                </section>
+                <section id="map-cards" class="hidden">
                     
                 </section>
                 <section id="add-npc-form" class="hidden">
@@ -65,11 +78,46 @@
                         <input type="text" id="status" placeholder="Status" />
                         <textarea id="notes" placeholder="Notes"></textarea>
                         <label class="checkbox-row"><input type="checkbox" id="is-companion" /> Companion</label>
-                                                <input type="text" id="image" placeholder="Image path (e.g., img/new-character.png)" />
+                        <div id="image-upload-area" class="image-upload-area">
+                            <div class="drag-drop-zone" id="drag-drop-zone">
+                                <div class="upload-icon"><i class="fa-solid fa-image"></i></div>
+                                <p>Drag and drop an image here or click to browse</p>
+                                <input type="file" id="image-file-input" accept="image/*" class="hidden-file-input" />
+                            </div>
+                            <div id="image-preview-container" class="image-preview-container hidden">
+                                <img id="image-preview" src="" alt="Image preview" class="image-preview" />
+                                <button type="button" id="remove-image-btn" class="remove-image-btn">Remove Image</button>
+                            </div>
+                            <input type="text" id="image" placeholder="Or paste image path (e.g., img/new-character.png)" />
+                        </div>
                                                 <div class="form-actions">
                                                     <button type="submit" id="submit-btn" class="save-btn"><i class="fa-solid fa-plus"></i> Add Character</button>
                                                     <button type="button" id="cancel-edit" class="cancel-btn hidden">Cancel Changes</button>
                                                 </div>
+                    </form>
+                </section>
+                <section id="add-map-form" class="hidden">
+                    <h2>Add a New Map</h2>
+                    <form id="map-form">
+                        <input type="text" id="map-name" placeholder="Map Name" required />
+                        <input type="text" id="cartouches" placeholder="Cartouches (e.g., Districts, Landmarks)" />
+                        <textarea id="map-notes" placeholder="Map Notes"></textarea>
+                        <div id="map-image-upload-area" class="image-upload-area">
+                            <div class="drag-drop-zone" id="map-drag-drop-zone">
+                                <div class="upload-icon"><i class="fa-solid fa-image"></i></div>
+                                <p>Drag and drop a map image here or click to browse</p>
+                                <input type="file" id="map-image-file-input" accept="image/*" class="hidden-file-input" />
+                            </div>
+                            <div id="map-image-preview-container" class="image-preview-container hidden">
+                                <img id="map-image-preview" src="" alt="Map preview" class="image-preview" />
+                                <button type="button" id="map-remove-image-btn" class="remove-image-btn">Remove Image</button>
+                            </div>
+                            <input type="text" id="map-image" placeholder="Or paste map image path (e.g., img/new-map.png)" />
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="map-submit-btn" class="save-btn"><i class="fa-solid fa-plus"></i> Add Map</button>
+                            <button type="button" id="map-cancel-edit" class="cancel-btn hidden">Cancel Changes</button>
+                        </div>
                     </form>
                 </section>
             </main>
