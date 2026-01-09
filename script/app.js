@@ -3,9 +3,11 @@ function renderNPCs(npcList) {
   container.innerHTML = "";
 
   if (npcList.length === 0) {
-    container.innerHTML = "<p>No characters to display. Try a new search or click 'Show All'.</p>";
+    container.classList.add("empty");
     return;
   }
+
+  container.classList.remove("empty");
 
   npcList.forEach((npcData) => {
     const card = document.createElement("article");
@@ -100,8 +102,11 @@ function renderMaps(mapList) {
   container.innerHTML = "";
 
   if (mapList.length === 0) {
+    container.classList.add("empty");
     return;
   }
+
+  container.classList.remove("empty");
 
   mapList.forEach((mapData) => {
     const card = document.createElement("article");
@@ -468,6 +473,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addCharacterBtn.classList.remove("hidden");
     mapSearchInput.classList.add("hidden");
     cartoucheSearchInput.classList.add("hidden");
+    librarySearchInput.classList.add("hidden");
     // hide entry search on Characters view
     if (entrySearchInput) entrySearchInput.classList.add('hidden');
     // ensure Show All is visible on Characters
@@ -505,6 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addMapBtn.classList.remove("hidden");
     mapSearchInput.classList.remove("hidden");
     cartoucheSearchInput.classList.remove("hidden");
+    librarySearchInput.classList.add("hidden");
     mapSearchInput.value = "";
     cartoucheSearchInput.value = "";
     addNpcFormSection.classList.add("hidden");

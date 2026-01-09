@@ -212,6 +212,10 @@ button:hover {
     padding: 16px;
 }
 
+#npc-cards.empty {
+    background-color: transparent;
+}
+
 #map-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -221,6 +225,10 @@ button:hover {
     border-color: #1c1c1c;
     /* border-radius: 8px; */
     padding: 16px;
+}
+
+#map-cards.empty {
+    background-color: transparent;
 }
 
 .npc-card {
