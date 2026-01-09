@@ -3,6 +3,7 @@ let notebook = {
   STORAGE_KEY: 'notebook_entries',
 
   allEntries: [],
+  nextId: 1,
 
   // Initialize by loading from localStorage or using empty array
   init: function() {
@@ -10,21 +11,22 @@ let notebook = {
     if (stored) {
       try {
         this.allEntries = JSON.parse(stored);
+        this.nextId = (this.allEntries.length > 0 ? Math.max(...this.allEntries.map(e => e.id)) : 0) + 1;
       } catch (e) {
         this.allEntries = [];
+        this.nextId = 1;
       }
     }
   },
 
   // Get all entries sorted by date in descending order (newest first)
   getEntries: function() {
-    return this.allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return [...this.allEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
   },
 
   // Add a new entry
   addEntry: function(entry) {
-    const id = this.allEntries.length > 0 ? Math.max(...this.allEntries.map(e => e.id)) + 1 : 1;
-    const newEntry = { id, ...entry };
+    const newEntry = { id: this.nextId++, ...entry };
     this.allEntries.push(newEntry);
     this.save();
     return newEntry;
@@ -68,8 +70,5 @@ let notebook = {
 };
 
 // Initialize notebook on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => notebook.init());
-} else {
-  notebook.init();
-}
+notebook.init();
+
