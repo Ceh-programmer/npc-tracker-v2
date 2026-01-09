@@ -176,6 +176,78 @@ function renderMaps(mapList) {
     });
   });
 }
+function renderEntries(entryList) {
+  const container = document.getElementById("notebook-entries");
+  container.innerHTML = "";
+
+  if (entryList.length === 0) {
+    return;
+  }
+
+  entryList.forEach((entryData) => {
+    const entry = document.createElement("article");
+    entry.classList.add("notebook-entry");
+    
+    const dateObj = new Date(entryData.date);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+
+    entry.innerHTML = `
+      <div class="notebook-entry-date">${formattedDate}</div>
+      <div class="notebook-entry-content">${entryData.content}</div>
+    `;
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete-btn';
+    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Delete';
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    entry.appendChild(actions);
+
+    container.appendChild(entry);
+
+    // Delete handler
+    delBtn.addEventListener('click', () => {
+      const confirmed = window.confirm(`Delete entry from ${formattedDate}? This cannot be undone.`);
+      if (confirmed) {
+        const removed = notebook.deleteEntry(entryData.id);
+        if (removed) {
+          renderEntries(notebook.getEntries());
+        }
+      }
+    });
+
+    // Edit handler
+    editBtn.addEventListener('click', () => {
+      document.getElementById('entry-date').value = entryData.date;
+      document.getElementById('entry-content').value = entryData.content;
+
+      window.editingEntryId = entryData.id;
+
+      const submitBtn = document.querySelector('#entry-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-save"></i> Save Changes';
+
+      const addForm = document.getElementById('add-entry-form');
+      const entries = document.getElementById('notebook-entries');
+      if (addForm) addForm.classList.remove('hidden');
+      if (entries) entries.classList.add('hidden');
+      const cancelBtn = document.getElementById('entry-cancel-edit');
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
+    });
+  });
+}
 document.addEventListener("DOMContentLoaded", () => {
   // DOM references for elements we’ll interact with
   const searchInput = document.getElementById("npc-search");
@@ -190,15 +262,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const showAllButton = document.getElementById("show-all");
   const addCharacterBtn = document.getElementById("add-character-btn");
   const addMapBtn = document.getElementById("add-map-btn");
+  const addEntryBtn = document.getElementById("add-entry-btn");
   const campToggle = document.getElementById("toggle-camp");
   const npcForm = document.getElementById("npc-form");
   const mapForm = document.getElementById("map-form");
+  const entryForm = document.getElementById("entry-form");
   const npcCardsSection = document.getElementById("npc-cards");
   const mapCardsSection = document.getElementById("map-cards");
   const addNpcFormSection = document.getElementById("add-npc-form");
   const addMapFormSection = document.getElementById("add-map-form");
+  const addEntryFormSection = document.getElementById("add-entry-form");
+  const entrySearchInput = document.getElementById("entry-search");
+  const notebookEntriesSection = document.getElementById("notebook-entries");
   const cancelEditBtn = document.getElementById("cancel-edit");
   const mapCancelEditBtn = document.getElementById("map-cancel-edit");
+  const entryCancelEditBtn = document.getElementById("entry-cancel-edit");
   const homeLink = document.getElementById("home-link");
   const charactersLink = document.getElementById("characters-link");
   const mapsLink = document.getElementById("maps-link");
@@ -351,9 +429,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Show all search inputs for home page
     searchInput.classList.remove("hidden");
     locationSearchInput.classList.remove("hidden");
-    characterFilters.classList.remove("hidden");
+    characterFilters.classList.add("hidden");
     addCharacterBtn.classList.add("hidden");
     addMapBtn.classList.add("hidden");
+    // ensure the Add Entry button is hidden on Home
+    if (addEntryBtn) addEntryBtn.classList.add("hidden");
     mapSearchInput.classList.remove("hidden");
     cartoucheSearchInput.classList.remove("hidden");
     librarySearchInput.classList.remove("hidden");
@@ -363,11 +443,16 @@ document.addEventListener("DOMContentLoaded", () => {
     mapSearchInput.value = "";
     cartoucheSearchInput.value = "";
     librarySearchInput.value = "";
+    // hide the Show All button on Home
+    if (showAllButton) showAllButton.classList.add('hidden');
+    // (maps handler) ensure entry search remains hidden on Maps view
     // Hide forms and show empty results
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
+    addEntryFormSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
     mapCardsSection.classList.add("hidden");
     // Display empty results
@@ -383,13 +468,19 @@ document.addEventListener("DOMContentLoaded", () => {
     addCharacterBtn.classList.remove("hidden");
     mapSearchInput.classList.add("hidden");
     cartoucheSearchInput.classList.add("hidden");
+    // hide entry search on Characters view
+    if (entrySearchInput) entrySearchInput.classList.add('hidden');
+    // ensure Show All is visible on Characters
+    if (showAllButton) showAllButton.classList.remove('hidden');
     searchInput.value = "";
     locationSearchInput.value = "";
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
+    addEntryFormSection.classList.add("hidden");
     mapCardsSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
     // Reset form to add mode
     npcForm.reset();
@@ -400,6 +491,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Character';
     window.editingId = null;
     renderNPCs([]);
+    // ensure the Add Entry button is hidden on Characters
+    if (addEntryBtn) addEntryBtn.classList.add("hidden");
   });
 
   // Maps page: placeholder
@@ -415,7 +508,10 @@ document.addEventListener("DOMContentLoaded", () => {
     mapSearchInput.value = "";
     cartoucheSearchInput.value = "";
     addNpcFormSection.classList.add("hidden");
+    addEntryFormSection.classList.add("hidden");
     npcCardsSection.classList.add("hidden");
+    // ensure entry search is visible on Home (single home page with entries search)
+    if (entrySearchInput) entrySearchInput.classList.remove('hidden');
     addMapFormSection.classList.add("hidden");
     mapCardsSection.classList.remove("hidden");
     mapForm.reset();
@@ -427,12 +523,44 @@ document.addEventListener("DOMContentLoaded", () => {
     window.editingMapId = null;
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
     renderMaps([]);
+    // ensure the Add Entry button is hidden on Maps
+    if (addEntryBtn) addEntryBtn.classList.add("hidden");
+    // hide entry search on Maps view
+    if (entrySearchInput) entrySearchInput.classList.add('hidden');
+    // ensure Show All is visible on Maps
+    if (showAllButton) showAllButton.classList.remove('hidden');
   });
 
   // Notebook page: placeholder
   notebookLink.addEventListener("click", (e) => {
     e.preventDefault();
-    alert("Notebook page coming soon!");
+    searchInput.classList.add("hidden");
+    locationSearchInput.classList.add("hidden");
+    characterFilters.classList.add("hidden");
+    addCharacterBtn.classList.add("hidden");
+    addMapBtn.classList.add("hidden");
+    addEntryBtn.classList.remove("hidden");
+    mapSearchInput.classList.add("hidden");
+    cartoucheSearchInput.classList.add("hidden");
+    librarySearchInput.classList.add("hidden");
+    entrySearchInput.classList.remove("hidden");
+    // ensure Show All is visible on Notebook
+    if (showAllButton) showAllButton.classList.remove('hidden');
+    addNpcFormSection.classList.add("hidden");
+    addMapFormSection.classList.add("hidden");
+    addEntryFormSection.classList.add("hidden");
+    npcCardsSection.classList.add("hidden");
+    mapCardsSection.classList.add("hidden");
+    notebookEntriesSection.classList.remove("hidden");
+    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+    if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+    entryForm.reset();
+    const submitBtn = document.querySelector('#entry-form button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Entry';
+    window.editingEntryId = null;
+    entrySearchInput.value = "";
+    renderEntries(notebook.getEntries());
   });
 
   // cancel / abort edit button handler
@@ -709,12 +837,28 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMaps(mapResults);
   });
 
-  // Show all characters
+  // Show all button - context aware (characters, maps, or notebook)
   showAllButton.addEventListener("click", () => {
-    addNpcFormSection.classList.add("hidden");
-    if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
-    npcCardsSection.classList.remove("hidden");
-    renderNPCs(npc.getNpcs());
+    // Check which page is currently visible
+    if (!mapCardsSection.classList.contains("hidden")) {
+      // Maps page - show all maps
+      addMapFormSection.classList.add("hidden");
+      if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+      mapCardsSection.classList.remove("hidden");
+      renderMaps(map.getMaps());
+    } else if (!notebookEntriesSection.classList.contains("hidden")) {
+      // Notebook page - show all notes
+      addEntryFormSection.classList.add("hidden");
+      if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+      notebookEntriesSection.classList.remove("hidden");
+      renderEntries(notebook.getEntries());
+    } else {
+      // Characters page - show all characters
+      addNpcFormSection.classList.add("hidden");
+      if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+      npcCardsSection.classList.remove("hidden");
+      renderNPCs(npc.getNpcs());
+    }
   });
 
   // Add character button - show the add character form
@@ -744,6 +888,84 @@ document.addEventListener("DOMContentLoaded", () => {
     window.editingMapId = null;
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
   });
+
+  // Add entry button - show the add entry form
+  addEntryBtn.addEventListener("click", () => {
+    addEntryFormSection.classList.remove("hidden");
+    notebookEntriesSection.classList.add("hidden");
+    entryForm.reset();
+    const submitBtn = document.querySelector('#entry-form button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Entry';
+    window.editingEntryId = null;
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+  });
+
+  // Entry form submission
+  entryForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formValues = {
+      date: document.getElementById("entry-date").value,
+      content: document.getElementById("entry-content").value
+    };
+
+    // if we are editing an existing entry, update it
+    if (window.editingEntryId) {
+      const updatedEntry = { id: window.editingEntryId, ...formValues };
+      const ok = notebook.updateEntry(updatedEntry);
+      if (ok) {
+        renderEntries(notebook.getEntries());
+      }
+      // reset editing state
+      window.editingEntryId = null;
+      const submitBtn = document.querySelector('#entry-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Entry';
+      entryForm.reset();
+      addEntryFormSection.classList.add("hidden");
+      if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+      notebookEntriesSection.classList.remove("hidden");
+      return;
+    }
+
+    // otherwise create a new entry and add
+    notebook.addEntry(formValues);
+    renderEntries(notebook.getEntries());
+    entryForm.reset();
+
+    // Hide the form and show entries after submission
+    addEntryFormSection.classList.add("hidden");
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+    notebookEntriesSection.classList.remove("hidden");
+  });
+
+  // Entry search
+  entrySearchInput.addEventListener("input", () => {
+    const searchTerm = entrySearchInput.value.toLowerCase().trim();
+    let results = notebook.getEntries();
+    
+    if (searchTerm !== "") {
+      results = notebook.searchEntries(searchTerm);
+    }
+    
+    addEntryFormSection.classList.add("hidden");
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+    notebookEntriesSection.classList.remove("hidden");
+    renderEntries(results);
+  });
+
+  // Entry cancel/abort edit button handler
+  if (entryCancelEditBtn) {
+    entryCancelEditBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.editingEntryId = null;
+      addEntryFormSection.classList.add('hidden');
+      notebookEntriesSection.classList.remove('hidden');
+      entryForm.reset();
+      const submitBtn = document.querySelector('#entry-form button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Entry';
+      if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
+    });
+  }
 
   // Toggle between camp-mode and travel-mode (cycles) and persist the choice
   campToggle.addEventListener("click", () => {

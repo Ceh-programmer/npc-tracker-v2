@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" />
-        <!-- <script src="script/npc.js"></script>
-        <script src="script/app.js"></script> -->
 
     </head>
     <body>
@@ -61,10 +59,17 @@
                       placeholder="Search Library"
                       class="search-input hidden"
                     />
+                    <input
+                      type="text"
+                      id="entry-search"
+                      placeholder="Search Entries"
+                      class="search-input hidden"
+                    />
                     <button id="clear-all"><i class="fa-solid fa-eye-slash"></i>Clear</button>
                     <button id="show-all"><i class="fa-solid fa-eye"></i>Show All</button>
                     <button id="add-character-btn" class="hidden"><i class="fa-solid fa-plus"></i>Add Character</button>
                     <button id="add-map-btn" class="hidden"><i class="fa-solid fa-plus"></i>Add Map</button>
+                    <button id="add-entry-btn" class="hidden"><i class="fa-solid fa-plus"></i>Add Entry</button>
                   </section>
                 <section id ="npc-cards">
                     
@@ -128,12 +133,26 @@
                         </div>
                     </form>
                 </section>
+                <section id="add-entry-form" class="hidden">
+                    <h2>Add a New Entry</h2>
+                    <form id="entry-form">
+                        <input type="date" id="entry-date" required />
+                        <textarea id="entry-content" placeholder="Entry content" required></textarea>
+                        <div class="form-actions">
+                            <button type="submit" id="entry-submit-btn" class="save-btn"><i class="fa-solid fa-plus"></i> Add Entry</button>
+                            <button type="button" id="entry-cancel-edit" class="cancel-btn hidden">Cancel Changes</button>
+                        </div>
+                    </form>
+                </section>
+                <section id="notebook-entries" class="hidden">
+                </section>
             </main>
             <footer>
                 <small>&copy; 2025 Character Tracker</small>
             </footer>
         </div>
         <script src="script/npc.js"></script>
+        <script src="script/notebook.js"></script>
         <script src="script/app.js"></script>
     </body>
 </html>

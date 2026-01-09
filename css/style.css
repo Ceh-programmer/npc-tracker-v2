@@ -114,7 +114,7 @@ footer{
 }
 
 #search-bar input[type="text"] {
-    flex: 1 1 0;
+    flex: 2 1 0;
     min-width: 0; /* allow shrinking inside flex */
     height: 40px; /* match button height */
     padding: 8px 12px;
@@ -151,7 +151,8 @@ footer{
 #clear-all,
 #toggle-camp,
 #add-character-btn,
-#add-map-btn {
+#add-map-btn,
+#add-entry-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -686,7 +687,8 @@ footer {grid-area: footer; }
 
     #search-bar input[type="text"],
     #clear-all,
-    #toggle-camp {
+    #toggle-camp,
+    #add-entry-btn {
         height: 44px;
         min-width: auto;
         width: 100%;
@@ -877,6 +879,88 @@ footer {grid-area: footer; }
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+
+/* Add Entry Form - matching Add NPC/Map Form styling */
+#add-entry-form {
+    position: relative;
+    max-width: 760px;
+    margin: 24px auto;
+    padding: 20px;
+    background: linear-gradient(180deg, #f7efe0, #efe1c8);
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-radius: 10px;
+}
+
+#add-entry-form h2 {
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #2e2e2e;
+    letter-spacing: 0.02em;
+}
+
+#add-entry-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#add-entry-form input[type="date"],
+#add-entry-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #fffef9;
+    color: #111;
+    height: 48px;
+}
+
+#add-entry-form textarea {
+    height: 200px;
+    padding-top: 14px;
+    resize: vertical;
+}
+
+/* Notebook entries display */
+#notebook-entries {
+    max-width: 800px;
+    margin: 24px auto;
+}
+
+.notebook-entry {
+    background: linear-gradient(180deg, #f7efe0, #efe1c8);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.notebook-entry-date {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2e5b3d;
+    margin-bottom: 12px;
+}
+
+.notebook-entry-content {
+    color: #1c1c1c;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.notebook-entry .card-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }
 
 #add-map-form input[type="text"],
