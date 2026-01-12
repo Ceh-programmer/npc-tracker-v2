@@ -91,6 +91,24 @@ nav a:hover {
     color: #d4af37;
 }
 
+#back-btn {
+    background-color: transparent;
+    color: rgb(5, 92, 25);
+    border: none;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: 'MedievalSharp', Georgia, 'Times New Roman', Times, serif;
+    font-size: 1rem;
+}
+
+#back-btn:hover {
+    color: #d4af37;
+}
+
 footer{
     position: sticky;
     bottom: 0;
@@ -254,6 +272,17 @@ button:hover {
 .npc-card h2 {
     text-align: center;
     margin-bottom: 8px;
+}
+
+/* Map thumbnail styling */
+.map-thumb {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 12px auto;
+    object-fit: contain;
 }
 
 /* Add Character form: bigger inputs and stacked layout */
@@ -935,7 +964,7 @@ footer {grid-area: footer; }
     resize: vertical;
 }
 
-/* Notebook entries display */
+/* Journal entries display */
 #notebook-entries {
     max-width: 800px;
     margin: 24px auto;

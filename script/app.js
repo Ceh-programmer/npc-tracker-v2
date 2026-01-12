@@ -111,19 +111,33 @@ function renderMaps(mapList) {
   mapList.forEach((mapData) => {
     const card = document.createElement("article");
     card.classList.add("map-card");
+    
+    // Create the map image with fallback
+    const mapImg = document.createElement('img');
+    mapImg.src = mapData.image || 'img/wf-wide.png';
+    mapImg.alt = mapData.name;
+    mapImg.classList.add('map-thumb');
+    mapImg.onerror = function() {
+      this.src = 'img/wf-wide.png';
+    };
+    
     card.innerHTML = `
       <h2 class="map-name" data-id="${mapData.id}">${mapData.name}</h2>
-      <img src="${mapData.image}" alt="${mapData.name}" />
+    `;
+    card.appendChild(mapImg);
+    
+    const detailsHTML = `
       <p><strong>Cartouches:</strong> ${mapData.cartouches}</p>
       <p><strong>Notes:</strong> ${mapData.notes}</p>
     `;
+    card.insertAdjacentHTML('beforeend', detailsHTML);
 
     const actions = document.createElement('div');
     actions.className = 'card-actions';
 
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-btn';
-    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit';
+    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i> View/Edit';
 
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-btn';
@@ -163,9 +177,23 @@ function renderMaps(mapList) {
     // Edit handler
     editBtn.addEventListener('click', () => {
       document.getElementById('map-name').value = mapData.name || '';
+      document.getElementById('map-location').value = mapData.location || '';
       document.getElementById('map-image').value = (mapData.image && mapData.image !== 'img/default.png') ? mapData.image : '';
       document.getElementById('cartouches').value = mapData.cartouches || '';
-      document.getElementById('map-notes').value = mapData.notes || '';
+
+      // Show full-size preview if image exists
+      const mapImagePreview = document.getElementById('map-image-preview');
+      const mapDragDropZone = document.getElementById('map-drag-drop-zone');
+      const mapImagePreviewContainer = document.getElementById('map-image-preview-container');
+      
+      if (mapData.image && mapData.image !== 'img/default.png') {
+        if (mapImagePreview) mapImagePreview.src = mapData.image;
+        if (mapDragDropZone) mapDragDropZone.classList.add('hidden');
+        if (mapImagePreviewContainer) mapImagePreviewContainer.classList.remove('hidden');
+      } else {
+        if (mapImagePreviewContainer) mapImagePreviewContainer.classList.add('hidden');
+        if (mapDragDropZone) mapDragDropZone.classList.remove('hidden');
+      }
 
       window.editingMapId = mapData.id;
 
@@ -279,6 +307,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const addEntryFormSection = document.getElementById("add-entry-form");
   const entrySearchInput = document.getElementById("entry-search");
   const notebookEntriesSection = document.getElementById("notebook-entries");
+  // track which high-level view is active: 'home' | 'characters' | 'maps' | 'notebook'
+  let currentView = 'home';
+  // Navigation history stack
+  let navigationHistory = [];
+  const backBtn = document.getElementById('back-btn');
   const cancelEditBtn = document.getElementById("cancel-edit");
   const mapCancelEditBtn = document.getElementById("map-cancel-edit");
   const entryCancelEditBtn = document.getElementById("entry-cancel-edit");
@@ -286,6 +319,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const charactersLink = document.getElementById("characters-link");
   const mapsLink = document.getElementById("maps-link");
   const notebookLink = document.getElementById("notebook-link");
+
+  // Function to navigate to a view and track history
+  function navigateTo(view) {
+    if (currentView !== view) {
+      navigationHistory.push(currentView);
+      currentView = view;
+      updateBackButton();
+    }
+  }
+
+  // Function to update back button visibility
+  function updateBackButton() {
+    if (navigationHistory.length > 0) {
+      backBtn.classList.remove('hidden');
+    } else {
+      backBtn.classList.add('hidden');
+    }
+  }
+
+  // Back button handler
+  backBtn.addEventListener('click', () => {
+    if (navigationHistory.length > 0) {
+      const previousView = navigationHistory.pop();
+      currentView = previousView;
+      updateBackButton();
+      
+      // Trigger the appropriate navigation link
+      if (previousView === 'home') {
+        homeLink.click();
+      } else if (previousView === 'characters') {
+        charactersLink.click();
+      } else if (previousView === 'maps') {
+        mapsLink.click();
+      } else if (previousView === 'notebook') {
+        notebookLink.click();
+      }
+    }
+  });
 
   // Image upload elements
   const dragDropZone = document.getElementById("drag-drop-zone");
@@ -410,7 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       mapImagePreview.src = e.target.result;
-      mapImagePathInput.value = file.name;
+      mapImagePathInput.value = e.target.result; // Store the full data URL
       mapDragDropZone.classList.add("hidden");
       mapImagePreviewContainer.classList.remove("hidden");
     };
@@ -431,6 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Home page - show all search inputs and empty results
   homeLink.addEventListener("click", (e) => {
     e.preventDefault();
+    navigateTo('home');
     // Show all search inputs for home page
     searchInput.classList.remove("hidden");
     locationSearchInput.classList.remove("hidden");
@@ -441,12 +513,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (addEntryBtn) addEntryBtn.classList.add("hidden");
     mapSearchInput.classList.remove("hidden");
     cartoucheSearchInput.classList.remove("hidden");
+    entrySearchInput.classList.remove("hidden");
     librarySearchInput.classList.remove("hidden");
     // Clear all search inputs
     searchInput.value = "";
     locationSearchInput.value = "";
     mapSearchInput.value = "";
     cartoucheSearchInput.value = "";
+    entrySearchInput.value = "";
     librarySearchInput.value = "";
     // hide the Show All button on Home
     if (showAllButton) showAllButton.classList.add('hidden');
@@ -455,6 +529,8 @@ document.addEventListener("DOMContentLoaded", () => {
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
     addEntryFormSection.classList.add("hidden");
+    // hide journal when navigating to Home
+    if (notebookEntriesSection) notebookEntriesSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
     if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
@@ -467,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Characters page: Show add form and all characters
   charactersLink.addEventListener("click", (e) => {
     e.preventDefault();
+    navigateTo('characters');
     searchInput.classList.remove("hidden");
     locationSearchInput.classList.remove("hidden");
     characterFilters.classList.remove("hidden");
@@ -483,6 +560,8 @@ document.addEventListener("DOMContentLoaded", () => {
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
     addEntryFormSection.classList.add("hidden");
+    // hide journal when navigating to Characters
+    if (notebookEntriesSection) notebookEntriesSection.classList.add("hidden");
     mapCardsSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
@@ -504,6 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Maps page: placeholder
   mapsLink.addEventListener("click", (e) => {
     e.preventDefault();
+    navigateTo('maps');
     searchInput.classList.add("hidden");
     locationSearchInput.classList.add("hidden");
     characterFilters.classList.add("hidden");
@@ -516,6 +596,8 @@ document.addEventListener("DOMContentLoaded", () => {
     cartoucheSearchInput.value = "";
     addNpcFormSection.classList.add("hidden");
     addEntryFormSection.classList.add("hidden");
+    // hide journal when navigating to Maps
+    if (notebookEntriesSection) notebookEntriesSection.classList.add("hidden");
     npcCardsSection.classList.add("hidden");
     // ensure entry search is visible on Home (single home page with entries search)
     if (entrySearchInput) entrySearchInput.classList.remove('hidden');
@@ -538,9 +620,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (showAllButton) showAllButton.classList.remove('hidden');
   });
 
-  // Notebook page: placeholder
+  // Journal page: placeholder
   notebookLink.addEventListener("click", (e) => {
     e.preventDefault();
+    navigateTo('notebook');
     searchInput.classList.add("hidden");
     locationSearchInput.classList.add("hidden");
     characterFilters.classList.add("hidden");
@@ -551,7 +634,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cartoucheSearchInput.classList.add("hidden");
     librarySearchInput.classList.add("hidden");
     entrySearchInput.classList.remove("hidden");
-    // ensure Show All is visible on Notebook
+    // ensure Show All is visible on Journal
     if (showAllButton) showAllButton.classList.remove('hidden');
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
@@ -823,6 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchTerm = event.target.value;
     let npcResults = [];
     let mapResults = [];
+    let entryResults = [];
     
     if (searchTerm.trim() !== "") {
       npcResults = npc.searchNpcs(searchTerm);
@@ -830,37 +914,41 @@ document.addEventListener("DOMContentLoaded", () => {
       // Also search cartouches
       const cartoucheResults = maps.searchCartouches(searchTerm);
       mapResults = [...new Set([...mapResults, ...cartoucheResults])]; // Combine and remove duplicates
+      // Search journal entries
+      entryResults = notebook.searchEntries(searchTerm);
     }
     
-    // Show both NPC and map cards
+    // Show NPC, map, and journal cards
     addNpcFormSection.classList.add("hidden");
     addMapFormSection.classList.add("hidden");
+    addEntryFormSection.classList.add("hidden");
     if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
     if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
+    if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
     npcCardsSection.classList.remove("hidden");
     mapCardsSection.classList.remove("hidden");
+    notebookEntriesSection.classList.remove("hidden");
     
     renderNPCs(npcResults);
     renderMaps(mapResults);
+    renderEntries(entryResults);
   });
 
   // Show all button - context aware (characters, maps, or notebook)
   showAllButton.addEventListener("click", () => {
-    // Check which page is currently visible
-    if (!mapCardsSection.classList.contains("hidden")) {
-      // Maps page - show all maps
+    // Use explicit currentView state to determine which 'all' to show
+    if (currentView === 'maps') {
       addMapFormSection.classList.add("hidden");
       if (mapCancelEditBtn) mapCancelEditBtn.classList.add('hidden');
       mapCardsSection.classList.remove("hidden");
-      renderMaps(map.getMaps());
-    } else if (!notebookEntriesSection.classList.contains("hidden")) {
-      // Notebook page - show all notes
+      renderMaps(maps.getMaps());
+    } else if (currentView === 'notebook') {
       addEntryFormSection.classList.add("hidden");
       if (entryCancelEditBtn) entryCancelEditBtn.classList.add('hidden');
       notebookEntriesSection.classList.remove("hidden");
       renderEntries(notebook.getEntries());
     } else {
-      // Characters page - show all characters
+      // default to characters for 'home' and 'characters'
       addNpcFormSection.classList.add("hidden");
       if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
       npcCardsSection.classList.remove("hidden");
@@ -870,6 +958,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add character button - show the add character form
   addCharacterBtn.addEventListener("click", () => {
+    currentView = 'characters';
     addNpcFormSection.classList.remove("hidden");
     npcCardsSection.classList.add("hidden");
     npcForm.reset();
@@ -884,6 +973,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add map button - show the add map form
   addMapBtn.addEventListener("click", () => {
+    currentView = 'maps';
     addMapFormSection.classList.remove("hidden");
     mapCardsSection.classList.add("hidden");
     mapForm.reset();
@@ -898,6 +988,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add entry button - show the add entry form
   addEntryBtn.addEventListener("click", () => {
+    currentView = 'notebook';
     addEntryFormSection.classList.remove("hidden");
     notebookEntriesSection.classList.add("hidden");
     entryForm.reset();
@@ -998,4 +1089,9 @@ document.addEventListener("DOMContentLoaded", () => {
       campToggle.innerHTML = '<i class="fa-solid fa-shoe-prints"></i> Travel';
     }
   });
+  // Ensure initial landing page is Home (not Characters)
+  if (homeLink) {
+    // Use the same interface as a user click to set initial UI state
+    homeLink.click();
+  }
 });
