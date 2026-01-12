@@ -121,6 +121,18 @@ function renderMaps(mapList) {
       this.src = 'img/wf-wide.png';
     };
     
+    // Click handler to view full-size image
+    mapImg.style.cursor = 'pointer';
+    mapImg.addEventListener('click', () => {
+      const modal = document.getElementById('map-modal');
+      const modalImg = document.getElementById('modal-map-img');
+      const caption = document.getElementById('modal-caption');
+      
+      modal.classList.remove('hidden');
+      modalImg.src = mapData.image || 'img/wf-wide.png';
+      caption.textContent = mapData.name;
+    });
+    
     card.innerHTML = `
       <h2 class="map-name" data-id="${mapData.id}">${mapData.name}</h2>
     `;
@@ -1093,5 +1105,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (homeLink) {
     // Use the same interface as a user click to set initial UI state
     homeLink.click();
+  }
+  
+  // Modal close handlers for map viewer
+  const mapModal = document.getElementById('map-modal');
+  const modalClose = document.querySelector('.modal-close');
+  
+  if (modalClose) {
+    modalClose.addEventListener('click', () => {
+      mapModal.classList.add('hidden');
+    });
+  }
+  
+  if (mapModal) {
+    mapModal.addEventListener('click', (e) => {
+      if (e.target === mapModal) {
+        mapModal.classList.add('hidden');
+      }
+    });
   }
 });
